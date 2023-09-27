@@ -113,6 +113,10 @@ class MainScreenViewController: UIViewController {
         timerPauseButton.isHidden = false
         statusLabel.text = "Working... 🔨"
         statusLabel.textColor = .orange
+        if isChillTime {
+            statusLabel.text = "Work is done!✅ Need to chill😎"
+            statusLabel.font = .boldSystemFont(ofSize: 25)
+        }
     }
     
     @objc private func timerPauseButtonPressed() {
