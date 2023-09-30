@@ -10,11 +10,11 @@ import UIKit
 class MainScreenViewController: UIViewController {
     
     private var countdownTimer: Timer?
-    private var secondsRemainingAtWork = 2
+    private var secondsRemainingAtWork = 25
     private var secondsRemainingAtChill = 10
-    private var isWorkTime = Bool()
     private var isChillTime = Bool()
-    private var isStarted = Bool()
+    private let circleLayer = CAShapeLayer()
+    private let circleContainerView = UIView()
     
     // MARK: Outlets
     
@@ -67,12 +67,13 @@ class MainScreenViewController: UIViewController {
         view.backgroundColor = .white
         setupHierarchy()
         setupLayout()
+        setupCircleLayer()
     }
     
     // MARK: Setup
     
     private func setupHierarchy() {
-        let views = [timerLabel, timerStartButton, timerPauseButton, statusLabel]
+        let views = [timerLabel, timerStartButton, timerPauseButton, statusLabel,circleContainerView]
         views.forEach { view.addSubview($0) }
     }
     
@@ -81,6 +82,7 @@ class MainScreenViewController: UIViewController {
         timerStartButton.translatesAutoresizingMaskIntoConstraints = false
         timerPauseButton.translatesAutoresizingMaskIntoConstraints = false
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        circleContainerView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             timerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -98,8 +100,10 @@ class MainScreenViewController: UIViewController {
             
             statusLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 150),
             statusLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            statusLabel.bottomAnchor.constraint(equalTo: timerLabel.topAnchor, constant: -100)
+            statusLabel.bottomAnchor.constraint(equalTo: timerLabel.topAnchor, constant: -100),
             
+            circleContainerView.topAnchor.constraint(equalTo: timerLabel.topAnchor, constant: -10),
+            circleContainerView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 100)
         ])
     }
     
@@ -111,12 +115,29 @@ class MainScreenViewController: UIViewController {
         timerStartButton.isHidden = true
         timerPauseButton.isEnabled = true
         timerPauseButton.isHidden = false
+        
         statusLabel.text = "Working... 🔨"
         statusLabel.textColor = .orange
+        timerLabel.textColor = .orange
+        circleLayer.strokeColor = UIColor.orange.cgColor
+        
         if isChillTime {
             statusLabel.text = "Work is done!✅ Need to chill😎"
             statusLabel.font = .boldSystemFont(ofSize: 25)
+            statusLabel.textColor = .purple
+            timerLabel.textColor = .purple
+           
         }
+        
+        // Получаем текущее время анимации
+        let pausedTime = circleLayer.timeOffset
+        circleLayer.speed = 1.0
+        circleLayer.timeOffset = 0.0
+        circleLayer.beginTime = 0.0
+        
+        let timeSincePause = circleLayer.convertTime(CACurrentMediaTime(), from: nil) - pausedTime
+        circleLayer.beginTime = timeSincePause
+        animateCircle(with: secondsRemainingAtWork)
     }
     
     @objc private func timerPauseButtonPressed() {
@@ -125,16 +146,30 @@ class MainScreenViewController: UIViewController {
         timerStartButton.isHidden = false
         timerPauseButton.isEnabled = false
         timerPauseButton.isHidden = true
+        
         statusLabel.text = "Coffee break... ☕️"
         statusLabel.font = .boldSystemFont(ofSize: 45)
         statusLabel.textColor = .brown
+        timerLabel.textColor = .brown
+        circleLayer.strokeColor = UIColor.brown.cgColor
+        circleLayer.borderColor = UIColor.brown.cgColor
+        
+        let pausedTime = circleLayer.convertTime(CACurrentMediaTime(), from: nil)
+        circleLayer.speed = 0.0
+        circleLayer.timeOffset = pausedTime
     }
     
     private func relaunchTimer() {
+        isChillTime = false
         statusLabel.text = "Working... 🔨"
+        statusLabel.font = .boldSystemFont(ofSize: 55)
+        statusLabel.textColor = .orange
+        timerLabel.textColor = .orange
+        circleLayer.strokeColor = UIColor.orange.cgColor
         secondsRemainingAtWork = 25
         secondsRemainingAtChill = 10
         updateTimer()
+        animateCircle(with: secondsRemainingAtWork)
     }
     
     @objc private func updateTimer() {
@@ -148,20 +183,52 @@ class MainScreenViewController: UIViewController {
             isChillTime = true
             statusLabel.text = "Work is done!✅ Need to chill😎"
             statusLabel.font = .boldSystemFont(ofSize: 25)
+            statusLabel.textColor = .purple
+            timerLabel.textColor = .purple
+            circleLayer.strokeColor = UIColor.purple.cgColor
+            animateCircle(with: secondsRemainingAtChill)
             if secondsRemainingAtChill > 0 {
                 secondsRemainingAtChill -= 1
                 let minutes = secondsRemainingAtChill / 60
                 let seconds = secondsRemainingAtChill % 60
                 timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
+                
             } else {
                 relaunchTimer()
+               
             }
         }
     }
     
-    //            timerLabel.text = "0 sec."
+    // Настройка Circle
     
-    //      countdownTimer?.invalidate()
+    func setupCircleLayer() {
+        circleLayer.frame = timerLabel.bounds
+        circleLayer.lineWidth = 8.0
+        circleLayer.fillColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0).cgColor
+        circleLayer.path = UIBezierPath(arcCenter: CGPoint(x: timerLabel.bounds.midX, y: timerLabel.bounds.midY), radius: (250) / 2, startAngle: -CGFloat.pi / 2, endAngle: 3 * CGFloat.pi / 2, clockwise: true).cgPath
+        circleLayer.strokeEnd = 0.0
+        circleLayer.position = CGPoint(x: 90, y: 70)
+       // circleLayer.strokeColor = UIColor.green.cgColor
+        circleContainerView.layer.addSublayer(circleLayer)
+        
+    }
+    
+    private func animateCircle(with durationType: Int) {
+        // Определяем начальное и конечное значение для анимации
+        let startValue: CGFloat = CGFloat(Float(durationType) / Float(25))
+        let endValue: CGFloat = 0.0
+        // Создаем анимацию
+        let animation = CAKeyframeAnimation(keyPath: "strokeEnd")
+        animation.values = [startValue, endValue]
+        animation.keyTimes = [0, 1]
+        animation.duration = Double(durationType)
+        animation.fillMode = .forwards
+        animation.isRemovedOnCompletion = false
+        
+        // Добавляем анимацию к CAShapeLayer
+        circleLayer.add(animation, forKey: "circleAnimation")
+    }
 }
 
 
