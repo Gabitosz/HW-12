@@ -73,7 +73,7 @@ class MainScreenViewController: UIViewController {
     // MARK: Setup
     
     private func setupHierarchy() {
-        let views = [timerLabel, timerStartButton, timerPauseButton, statusLabel,circleContainerView]
+        let views = [timerLabel, timerStartButton, timerPauseButton, statusLabel, circleContainerView]
         views.forEach { view.addSubview($0) }
     }
     
@@ -103,7 +103,8 @@ class MainScreenViewController: UIViewController {
             statusLabel.bottomAnchor.constraint(equalTo: timerLabel.topAnchor, constant: -100),
             
             circleContainerView.topAnchor.constraint(equalTo: timerLabel.topAnchor, constant: -10),
-            circleContainerView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 100)
+            circleContainerView.widthAnchor.constraint(equalToConstant: 180),
+            circleContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
     
@@ -204,10 +205,11 @@ class MainScreenViewController: UIViewController {
         circleLayer.frame = timerLabel.bounds
         circleLayer.lineWidth = 8.0
         circleLayer.fillColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0).cgColor
-        circleLayer.path = UIBezierPath(arcCenter: CGPoint(x: timerLabel.bounds.midX, y: timerLabel.bounds.midY), radius: (250) / 2, startAngle: 3 * CGFloat.pi / 2, endAngle: -CGFloat.pi / 2, clockwise: false).cgPath
+        circleLayer.path = UIBezierPath(arcCenter: CGPoint(x: timerLabel.bounds.midX, y: timerLabel.bounds.midY),
+                                        radius: (250) / 2, startAngle: 3 * CGFloat.pi / 2,
+                                        endAngle: -CGFloat.pi / 2, clockwise: false).cgPath
         circleLayer.strokeEnd = 0.0
         circleLayer.position = CGPoint(x: 90, y: 70)
-//        circleLayer.strokeColor = UIColor.green.cgColor
         circleContainerView.layer.addSublayer(circleLayer)
         
     }
