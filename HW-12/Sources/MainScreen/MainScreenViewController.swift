@@ -127,7 +127,6 @@ class MainScreenViewController: UIViewController {
             statusLabel.font = .boldSystemFont(ofSize: 25)
             statusLabel.textColor = .purple
             timerLabel.textColor = .purple
-           
         }
         
         // Получаем текущее время анимации
@@ -194,7 +193,6 @@ class MainScreenViewController: UIViewController {
                 
             } else {
                 relaunchTimer()
-               
             }
         }
     }
