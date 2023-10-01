@@ -21,7 +21,7 @@ class MainScreenViewController: UIViewController {
     private lazy var timerLabel: UILabel = {
         let label = UILabel()
         label.text = "25 sec."
-        label.textColor = .black
+        label.textColor = .red
         label.font = .boldSystemFont(ofSize: 60)
         label.textAlignment = .center
         return label
@@ -151,8 +151,6 @@ class MainScreenViewController: UIViewController {
         statusLabel.font = .boldSystemFont(ofSize: 45)
         statusLabel.textColor = .brown
         timerLabel.textColor = .brown
-        circleLayer.strokeColor = UIColor.brown.cgColor
-        circleLayer.borderColor = UIColor.brown.cgColor
         
         let pausedTime = circleLayer.convertTime(CACurrentMediaTime(), from: nil)
         circleLayer.speed = 0.0
@@ -206,10 +204,10 @@ class MainScreenViewController: UIViewController {
         circleLayer.frame = timerLabel.bounds
         circleLayer.lineWidth = 8.0
         circleLayer.fillColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0).cgColor
-        circleLayer.path = UIBezierPath(arcCenter: CGPoint(x: timerLabel.bounds.midX, y: timerLabel.bounds.midY), radius: (250) / 2, startAngle: -CGFloat.pi / 2, endAngle: 3 * CGFloat.pi / 2, clockwise: true).cgPath
+        circleLayer.path = UIBezierPath(arcCenter: CGPoint(x: timerLabel.bounds.midX, y: timerLabel.bounds.midY), radius: (250) / 2, startAngle: 3 * CGFloat.pi / 2, endAngle: -CGFloat.pi / 2, clockwise: false).cgPath
         circleLayer.strokeEnd = 0.0
         circleLayer.position = CGPoint(x: 90, y: 70)
-       // circleLayer.strokeColor = UIColor.green.cgColor
+//        circleLayer.strokeColor = UIColor.green.cgColor
         circleContainerView.layer.addSublayer(circleLayer)
         
     }
